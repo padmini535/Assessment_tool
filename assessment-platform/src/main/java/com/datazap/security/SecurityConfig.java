@@ -29,39 +29,37 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // Disable CSRF for REST APIs
-                .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable())
 
-                // Authorization rules
-                .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
+            .authorizeHttpRequests(auth -> auth
 
-                        // Admin-only endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                // PUBLIC
+                .requestMatchers("/api/auth/**").permitAll()
 
-                        // Candidate + Admin access
-                        .requestMatchers("/api/candidate/**")
-                        .hasAnyRole("ADMIN", "CANDIDATE")
+                // ADMIN ONLY MODULES
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/assessments/**").hasRole("ADMIN")
+                .requestMatchers("/api/questions/**").hasRole("ADMIN")
+                .requestMatchers("/api/assignments/**").hasRole("ADMIN")
 
-                        // Everything else must be authenticated
-                        .anyRequest().authenticated()
-                )
+                // BOTH ADMIN + CANDIDATE (future modules)
+                .requestMatchers("/api/candidate/**").hasAnyRole("ADMIN", "CANDIDATE")
 
-                // Stateless session (JWT based auth)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                // EVERYTHING ELSE
+                .anyRequest().authenticated()
+            )
 
-                // JWT filter
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }

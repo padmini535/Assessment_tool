@@ -1,0 +1,66 @@
+package com.datazap.module.assignment.controller;
+
+import com.datazap.module.assignment.entity.Assignment;
+import com.datazap.module.assignment.service.AssignmentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/assignments")
+public class AssignmentController {
+
+    @Autowired
+    private AssignmentService service;
+
+    @PostMapping
+    public Assignment create(
+            @RequestBody Assignment assignment) {
+
+        return service.createAssignment(
+                assignment);
+    }
+
+    @GetMapping
+    public List<Assignment> getAll() {
+
+        return service.getAllAssignments();
+    }
+
+    @GetMapping("/{id}")
+    public Assignment getById(
+            @PathVariable Long id) {
+
+        return service.getAssignment(id);
+    }
+
+    @GetMapping("/candidate/{candidateId}")
+    public List<Assignment> getCandidateAssignments(
+            @PathVariable Long candidateId) {
+
+        return service
+                .getCandidateAssignments(
+                        candidateId);
+    }
+
+    @PutMapping("/{id}")
+    public Assignment update(
+            @PathVariable Long id,
+            @RequestBody Assignment assignment) {
+
+        return service
+                .updateAssignment(
+                        id,
+                        assignment);
+    }
+
+    @DeleteMapping("/{id}")
+    public String delete(
+            @PathVariable Long id) {
+
+        service.deleteAssignment(id);
+
+        return "Assignment deleted successfully";
+    }
+}
